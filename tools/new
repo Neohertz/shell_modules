@@ -1,45 +1,62 @@
 Type=$1
 NL=$'\n'
-RED='\033[0;33m'
-GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+GREEN='\033[1;32m'
+CYAN='\033[0;36m'
+RED='\033[1;31m'
 NC='\033[0m'
+GRAY='\033[0;37m'
+
+function Help() {
+	echo 'Usage: new <rojo>'
+}
+
+function Error() {
+	echo "${RED}Error:${NC} $1"
+}
+
+function Log() {
+	echo "${YELLOW}Log:${NC} $1"
+}
 
 if [[ $# -eq 0 ]] ; then
-	echo 'Invalid command. Please specifiy a type.'
-	echo 'Usage: new <rojo>'
+	echo 'Incorrect Usage: Please specifiy a type.'
+	Help
 	exit 1
 fi
 
 if [[ $Type == 'rojo' ]] ; then
-	read -p 'Project Name: ' ProjectName
+	echo "${NL}${GREEN}Create a new Rojo Project"
+	read -p "$(echo "${GRAY}Project Name:${NC} ")" ProjectName
 
 	# Check to see if the input is empty.
-	[[ -z "$ProjectName" ]] && echo 'Error: Please specify a project name.' && exit 1
+	[[ -z "$ProjectName" ]] && Error 'Please specify a project name.' && exit 1
 
 	# Check for spaces.
-	[[ $ProjectName = *" "* ]] && echo 'Error: Project name cannot contain spaces.' && exit 1
+	[[ $ProjectName = *" "* ]] && Error 'Project name cannot contain spaces.' && exit 1
 
-	read -p 'Location: ' Location
+	read -p "$(echo "${GRAY}Location:${NC} ")" Location
 	New="$Location/$ProjectName"
 	
 	# Ensure that location is a directory
-	[[ ! -d $Location ]] && echo 'Error: Location is not a directory.' && exit 1 
+	[[ ! -d $Location ]] && Error "'$Location' is not a directory." && exit 1 
 
 	# Ensure that directory doesn't already exist
-	[[ -d $New ]] && echo 'Error: Project Already Exists.' && exit 1
+	[[ -d $New ]] && Error 'Project Already Exists.' && exit 1
 
-	read -p "$(echo "${RED}Create new project? (y/n) ${NC}")" Confirm	
+	read -p "$(echo "${NL}${YELLOW}Create new project? (y/n) ${NC}")" Confirm	
 
 	# Ensure the result is y
-	[[ ! $Confirm == 'y' ]] && echo 'Aborted' && exit 1 
+	[[ ! $Confirm == 'y' ]] && Error 'Aborted' && exit 1 
 
 	# Create new Project, Initialize Rojo & Wally
-	echo "${NL}Creating Directory..."
+	echo ''
+	Log "Creating Directory..."
 	mkdir -p "$New" && cd "$New"
-	echo 'Initializing Rojo & Wally...'
+	Log 'Initializing Rojo & Wally...'
 	rojo init > .newcmdlog
 	wally init > .newcmdlog
-	echo 'Initializing Git Repository...'
+	Log 'Initializing Git Repository...'
 	git init > .newcmdlog
 
 	# remove our logs
@@ -47,7 +64,8 @@ if [[ $Type == 'rojo' ]] ; then
 
 	echo "${GREEN}Project Created! Use 'cd ${New}' to view.${NL}"
 else
-	echo '[New] Usage: new <rojo>'
+	Error "$Type is not a valid Type."
+	Help
 fi
 
 

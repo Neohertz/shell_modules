@@ -22,10 +22,10 @@ function Help() {
 	echo "  ${GRAY}new ${CYAN}[options] ${YELLOW}<type>"
 	echo ""
 	echo "${RED}OPTIONS:${NC}"
-	echo "  ${YELLOW}-h${NC}   -> Show help information."
+	echo "  ${YELLOW}-h${NC}   -> Show help."
 	echo ""
 	echo "${RED}TYPES:"
-	echo "  ${YELLOW}rojo${NC} -> Create a new rojo project with knit, wally and git."
+	echo "  ${YELLOW}rojo${NC} -> Create a new project with rojo, wally and git."
 }
 
 function Error() {

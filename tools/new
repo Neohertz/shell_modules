@@ -1,29 +1,57 @@
+# Arguments
 Type=$1
+
+# Formatting
 NL=$'\n'
+NC='\033[0m'
+
+# Colors
 YELLOW='\033[0;33m'
 GREEN='\033[1;32m'
 CYAN='\033[0;36m'
 RED='\033[1;31m'
-NC='\033[0m'
 GRAY='\033[0;37m'
 
+HelpMsg="Use ${GREEN}new -h${NC} to view usage."
+
 function Help() {
-	echo 'Usage: new <rojo>'
+	echo "Project Generator"
+	echo "${GRAY}By Neohertz0"
+	echo ""
+	echo "${RED}USAGE:${NC}"
+	echo "  ${GRAY}new ${CYAN}[options] ${YELLOW}<type>"
+	echo ""
+	echo "${RED}OPTIONS:${NC}"
+	echo "  ${YELLOW}-h${NC}   -> Show help information."
+	echo ""
+	echo "${RED}TYPES:"
+	echo "  ${YELLOW}rojo${NC} -> Create a new rojo project with knit, wally and git."
 }
 
 function Error() {
-	echo "${RED}Error:${NC} $1"
+	echo "${RED}[Error]${NC} $1"
 }
 
 function Log() {
-	echo "${YELLOW}Log:${NC} $1"
+	echo "${YELLOW}[Log]${NC} $1"
 }
 
 if [[ $# -eq 0 ]] ; then
-	echo 'Incorrect Usage: Please specifiy a type.'
-	Help
+	Error 'Incorrect Usage: Invalid type.'
+	echo $HelpMsg
 	exit 1
 fi
+
+# Register Options
+while [ True ] ; do 
+	if [ "$1" = '-h' -o "$1" = '--help' ] ; then
+		Help
+		exit 1
+		#shift 1
+	else
+		break
+	fi
+done
 
 if [[ $Type == 'rojo' ]] ; then
 	echo "${NL}${GREEN}Create a new Rojo Project"
@@ -47,7 +75,7 @@ if [[ $Type == 'rojo' ]] ; then
 	read -p "$(echo "${NL}${YELLOW}Create new project? (y/n) ${NC}")" Confirm	
 
 	# Ensure the result is y
-	[[ ! $Confirm == 'y' ]] && Error 'Aborted' && exit 1 
+	[[ ! $Confirm == 'y' ]] && Error 'Process Aborted.' && exit 1 
 
 	# Create new Project, Initialize Rojo & Wally
 	echo ''
@@ -63,9 +91,12 @@ if [[ $Type == 'rojo' ]] ; then
 	rm .newcmdlog
 
 	echo "${GREEN}Project Created! Use 'cd ${New}' to view.${NL}"
+elif [[ $Type == 'help' ]] ; then
+	Help
 else
 	Error "$Type is not a valid Type."
-	Help
+	echo $HelpMsg
+
 fi
 
 

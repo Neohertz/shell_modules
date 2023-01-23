@@ -1,6 +1,7 @@
 Type=$1
 NL=$'\n'
 RED='\033[0;33m'
+GREEN='\033[0;32m'
 NC='\033[0m'
 
 if [[ $# -eq 0 ]] ; then
@@ -19,22 +20,32 @@ if [[ $Type == 'rojo' ]] ; then
 	[[ $ProjectName = *" "* ]] && echo 'Error: Project name cannot contain spaces.' && exit 1
 
 	read -p 'Location: ' Location
-
-	# Ensure that location is a directory
+	New="$Location/$ProjectName"
 	
+	# Ensure that location is a directory
 	[[ ! -d $Location ]] && echo 'Error: Location is not a directory.' && exit 1 
+
+	# Ensure that directory doesn't already exist
+	[[ -d $New ]] && echo 'Error: Project Already Exists.' && exit 1
 
 	read -p "$(echo "${RED}Create new project? (y/n) ${NC}")" Confirm	
 
 	# Ensure the result is y
 	[[ ! $Confirm == 'y' ]] && echo 'Aborted' && exit 1 
 
-	# Create new Project
-	New="$Location/$ProjectName"
-	echo $New
+	# Create new Project, Initialize Rojo & Wally
+	echo "${NL}Creating Directory..."
 	mkdir -p "$New" && cd "$New"
-	pwd
+	echo 'Initializing Rojo & Wally...'
+	rojo init > .newcmdlog
+	wally init > .newcmdlog
+	echo 'Initializing Git Repository...'
+	git init > .newcmdlog
 
+	# remove our logs
+	rm .newcmdlog
+
+	echo "${GREEN}Project Created! Use 'cd ${New}' to view.${NL}"
 else
 	echo '[New] Usage: new <rojo>'
 fi

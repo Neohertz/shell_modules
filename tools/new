@@ -82,13 +82,10 @@ if [[ $Type == 'rojo' ]] ; then
 	Log "Creating Directory..."
 	mkdir -p "$New" && cd "$New"
 	Log 'Initializing Rojo & Wally...'
-	rojo init > .newcmdlog
-	wally init > .newcmdlog
+	rojo init > /dev/null
+	wally init > /dev/null
 	Log 'Initializing Git Repository...'
-	git init > .newcmdlog
-
-	# remove our logs
-	rm .newcmdlog
+	git init > /dev/null
 
 	echo "${GREEN}Project Created! Use 'cd ${New}' to view.${NL}"
 elif [[ $Type == 'help' ]] ; then

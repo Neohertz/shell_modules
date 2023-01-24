@@ -1,5 +1,4 @@
 # Arguments
-Type=$1
 
 # Formatting
 NL=$'\n'
@@ -22,7 +21,8 @@ function Help() {
 	echo "  ${GRAY}new ${CYAN}[options] ${YELLOW}<type>"
 	echo ""
 	echo "${RED}OPTIONS:${NC}"
-	echo "  ${YELLOW}-h${NC}   -> Show help."
+	echo "  ${YELLOW}-h  --help${NC}   -> Show help."
+	echo "  ${YELLOW}-c  --code${NC}   -> Run `code -r` on directory once created."
 	echo ""
 	echo "${RED}TYPES:"
 	echo "  ${YELLOW}rojo${NC} -> Create a new project with rojo, wally and git."
@@ -37,23 +37,30 @@ function Log() {
 }
 
 if [[ $# -eq 0 ]] ; then
-	Error 'Incorrect Usage: Invalid type.'
+	Error 'Incorrect Usage.'
 	echo $HelpMsg
 	exit 1
 fi
 
+OpenWithCode=false
+
 # Register Options
-while [ True ] ; do 
+while [ true ]; do 
 	if [ "$1" = '-h' -o "$1" = '--help' ] ; then
 		Help
 		exit 1
 		#shift 1
+	elif [ "$1" = '-c' -o "$1" = '--code' ] ; then
+		OpenWithCode=true
+		shift 1
 	else
 		break
 	fi
 done
 
-if [[ $Type == 'rojo' ]] ; then
+[[ -z "$1" ]] && Error 'No Argument Given.' && echo $HelpMsg && exit 1
+
+if [[ $1 == 'rojo' ]] ; then
 	echo "${NL}${GREEN}Create a new Rojo Project"
 	read -p "$(echo "${GRAY}Project Name:${NC} ")" ProjectName
 
@@ -86,12 +93,20 @@ if [[ $Type == 'rojo' ]] ; then
 	wally init > /dev/null
 	Log 'Initializing Git Repository...'
 	git init > /dev/null
+	Log 'Creating selene.toml & sourcemap.json'
+	echo "std = 'roblox'" > selene.toml
+	rojo sourcemap > sourcemap.json
 
-	echo "${GREEN}Project Created! Use 'cd ${New}' to view.${NL}"
-elif [[ $Type == 'help' ]] ; then
+	if $OpenWithCode ; then
+		Log 'Opening with Visual Studio Code...'
+		code -n .
+	else 
+		echo "${GREEN}Project Created! Use 'cd ${New}' to view.${NL}"
+	fi
+elif [[ $1 == 'help' ]] ; then
 	Help
 else
-	Error "$Type is not a valid Type."
+	Error "$1 is not a valid Type."
 	echo $HelpMsg
 
 fi

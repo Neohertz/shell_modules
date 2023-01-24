@@ -1,0 +1,69 @@
+
+# Formatting
+NL=$'\n'
+NC='\033[0m'
+
+# Colors
+YELLOW='\033[0;33m'
+GREEN='\033[1;32m'
+CYAN='\033[0;36m'
+RED='\033[1;31m'
+GRAY='\033[0;37m'
+
+function Help() {
+	echo "${RED}Repex"
+	echo "${GRAY}By Neohertz0"
+	echo ""
+	echo "${GRAY}Replaces the extention of all files within a directory."
+	echo ""
+	echo "${RED}USAGE:${NC}"
+	echo "  ${GRAY}repex ${CYAN}[options]"
+	echo ""
+	echo "${RED}OPTIONS:${NC}"
+	echo "  ${YELLOW}-h${NC}   -> Show help."
+	echo ""
+}
+
+function Error() {
+	echo "${RED}[Error]${NC} $1"
+}
+
+function Log() {
+	echo "${YELLOW}[Log]${NC} $1"
+}
+
+# Register Options
+while [ True ] ; do 
+	if [ "$1" = '-h' -o "$1" = '--help' ] ; then
+		Help
+		exit 1
+		#shift 1
+	else
+		break
+	fi
+done
+
+read -p "$(echo "${GRAY}Extention to Replace: ${RED}.")" Original
+read -p "$(echo "${GRAY}New Extention: ${GREEN}.")" New
+
+Count=0
+for file in $(find . -name "*.${Original}"); do
+	Count=$[$Count+1]
+done
+
+[[ ! $Count -gt 0 ]] && Error 'No Files Found!' && exit 1
+
+read -p "$(echo "\n${RED}You are about to replace the extention of ${Count} file(s).\n${NC}Continue? (y/n) ${RED}")" Confirm
+
+if [[ ! -z "$New" ]] ; then
+	New=".${New}"
+fi
+
+[[ ! $Confirm == 'y' ]] && Error 'Process Aborted.' && exit 1
+
+for file in $(find . -name "*.${Original}"); do
+	mv -- "$file" "${file%.$Original}$New"
+done
+
+echo "\n${GREEN}${Count} File(s) modified successfully!"
+

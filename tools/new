@@ -22,10 +22,11 @@ function Help() {
 	echo ""
 	echo "${RED}OPTIONS:${NC}"
 	echo "  ${YELLOW}-h  --help${NC}   -> Show help."
-	echo "  ${YELLOW}-c  --code${NC}   -> Run `code -r` on directory once created."
+	echo "  ${YELLOW}-c  --code${NC}   -> Run 'code -r' on directory once created."
 	echo ""
 	echo "${RED}TYPES:"
 	echo "  ${YELLOW}rojo${NC} -> Create a new project with rojo, wally and git."
+	echo "  ${YELLOW}rbxts${NC} -> Create a new project with rojo, ts and git."
 }
 
 function Error() {
@@ -88,6 +89,10 @@ if [[ $1 == 'rojo' ]] ; then
 	echo ''
 	Log "Creating Directory..."
 	mkdir -p "$New" && cd "$New"
+	Log "Creating aftman.toml"
+	echo '[tools]\nrojo = "rojo-rbx/rojo@7.2.1"\nwally = "UpliftGames/wally@0.3.1"' > aftman.toml
+	Log "Installing Dependencies"
+	aftman install
 	Log 'Initializing Rojo & Wally...'
 	rojo init > /dev/null
 	wally init > /dev/null
@@ -103,12 +108,67 @@ if [[ $1 == 'rojo' ]] ; then
 	else 
 		echo "${GREEN}Project Created! Use 'cd ${New}' to view.${NL}"
 	fi
+elif [[ $1 == "rbxts" ]] ; then
+	echo "${NL}${GREEN}Create a new Roblox Typescript Project"
+	read -p "$(echo "${GRAY}Project Name:${NC} ")" ProjectName
+
+	# Check to see if the input is empty.
+	[[ -z "$ProjectName" ]] && Error 'Please specify a project name.' && exit 1
+
+	# Check for spaces.
+	[[ $ProjectName = *" "* ]] && Error 'Project name cannot contain spaces.' && exit 1
+
+	read -p "$(echo "${GRAY}Location:${NC} ")" Location
+	New="$Location/$ProjectName"
+
+	read -p "$(echo "${NL}${CYAN}Use Neohertz0 Flamework Template? (y/n) ${NC}")" UseTemplate	
+	
+	# Ensure that location is a directory
+	[[ ! -d $Location ]] && Error "'$Location' is not a directory." && exit 1 
+
+	# Ensure that directory doesn't already exist
+	[[ -d $New ]] && Error 'Project Already Exists.' && exit 1
+
+	read -p "$(echo "${YELLOW}Create new project? (y/n) ${NC}")" Confirm	
+
+	# Ensure the result is y
+	[[ ! $Confirm == 'y' ]] && Error 'Process Aborted.' && exit 1 
+	echo ''
+
+	if [[ $UseTemplate == 'y' ]]  ; then
+		Log "Fetching Template..."
+		cd $Location
+		git clone -q "https://github.com/Neohertz/UntitledTS.git" $ProjectName > /dev/null
+		cd $ProjectName
+		Log "Rebuilding Git Repository..."
+		rm -rf .git
+		git init > /dev/null
+		Log "Installing Modules..."
+		npm i > /dev/null
+		Log "Creating Initial Commit..."
+		git add . > /dev/null
+		git commit -m 'Initial Commit' > /dev/null
+	else 
+		Log "Generating with rbxtsc init..."
+		mkdir $New
+		cd $New
+		rbxtsc init game -y > /dev/null
+	fi
+	
+	if $OpenWithCode ; then
+		Log 'Opening with Visual Studio Code...'
+		code -n .
+	else 
+		echo "${GREEN}Project Created! Use 'cd ${New}' to view.${NL}"
+	fi
+
 elif [[ $1 == 'help' ]] ; then
 	Help
+	exit 1
 else
 	Error "$1 is not a valid Type."
 	echo $HelpMsg
-
+	exit 1
 fi
 
 
